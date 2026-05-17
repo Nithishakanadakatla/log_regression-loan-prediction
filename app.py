@@ -26,18 +26,20 @@ st.dataframe(data.head())
 # ---------------- DATA CLEANING ----------------
 st.subheader("🧹 Data Cleaning")
 
-# Drop Loan_ID (string column)
+# Drop ID column
 if "Loan_ID" in data.columns:
     data = data.drop("Loan_ID", axis=1)
 
-# Convert categorical to numeric
+# Convert target column properly
+data['Loan_Status'] = data['Loan_Status'].map({'Y': 1, 'N': 0})
+
+# Convert categorical features
 data.replace({
     'Gender': {'Male': 1, 'Female': 0},
     'Married': {'Yes': 1, 'No': 0},
     'Education': {'Graduate': 1, 'Not Graduate': 0},
     'Self_Employed': {'Yes': 1, 'No': 0},
-    'Property_Area': {'Urban': 2, 'Semiurban': 1, 'Rural': 0},
-    'Loan_Status': {'Y': 1, 'N': 0}
+    'Property_Area': {'Urban': 2, 'Semiurban': 1, 'Rural': 0}
 }, inplace=True)
 
 # Fix Dependents column
@@ -47,6 +49,14 @@ if "Dependents" in data.columns:
 
 # Drop missing values
 data = data.dropna()
+
+# Debug check
+st.write("Target Values:", data['Loan_Status'].unique())
+
+# Validate classification target
+if data['Loan_Status'].nunique() < 2:
+    st.error("❌ Target column must have both classes (0 and 1)")
+    st.stop()
 
 st.write("Cleaned Data Shape:", data.shape)
 
